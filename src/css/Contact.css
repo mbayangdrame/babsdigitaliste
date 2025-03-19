@@ -1,0 +1,141 @@
+.contact-container {
+    /* background-color: #fff !important; */
+    color: white;
+    padding: 4rem 2rem;
+    min-height: 100vh;
+}
+
+.contact-title {
+    color: #009EAA;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* .contact-subtitle {
+    color: #00FFE6;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+} */
+
+.contact-content {
+    display: flex;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 4rem;
+}
+
+.icon-wrapper {
+    background-color: #009EAA;
+    color: #0F1419;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.icon-wrapper svg {
+    width: 20px;
+    height: 20px;
+}
+
+.info-content h3 {
+    color: #009EAA !important;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-content p {
+    color: #888;
+    line-height: 1.5;
+}
+
+.contact-form {
+    flex: 2;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: white;
+}
+
+.form-group textarea {
+    height: 150px;
+    resize: none;
+}
+
+button[type="submit"] {
+    background-color: white;
+    color: #0F1419;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    float: right;
+    transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #009EAA;
+    color: #fff;
+}
+@media (max-width: 1024px) {
+    .contact-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .contact-info, .contact-form {
+        width: 100%;
+    }
+}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 768px) {
+    .contact-container {
+        padding: 20px;
+    }
+
+    .info-item {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .icon-wrapper {
+        width: 30px;
+        height: 30px;
+    }
+
+    .contact-form {
+        width: 100%;
+    }
+}
+/* Pour les icônes, n'oubliez pas d'ajouter Font Awesome dans votre index.html */

@@ -1,0 +1,158 @@
+.devis-container {
+    background-color: #fff;
+    min-height: 100vh;
+    padding: 4rem 2rem;
+    /* color: white; */
+}
+
+.devis-header {
+    max-width: 800px;
+    margin: 0 auto 4rem;
+    text-align: center;
+}
+
+.devis-subtitle {
+    color: #000;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.devis-title {
+    color: #009EAA;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    font-weight: bold;
+}
+
+.devis-description {
+    color: #000;
+    opacity: 0.8;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.devis-types {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.devis-cards {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.devis-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background-color: #009EAA;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.devis-card:hover {
+    background-color: #007E9C;
+}
+
+.devis-card.active {
+    background-color: #fff;
+    color: #009EAA;
+}
+
+.devis-card-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.devis-card-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.devis-form-container {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.devis-form {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 5.5rem;
+    border-radius: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group textarea {
+    height: 150px;
+    resize: none;
+}
+
+button[type="submit"] {
+    background-color: white;
+    color: #0F1419;
+    padding: 0.8rem 2.5rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    float: right;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+button[type="submit"]:hover {
+    background-color: #cc0000;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .devis-cards {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .devis-title {
+        font-size: 2rem;
+    }
+
+    .devis-form {
+        padding: 1.5rem;
+    }
+}
