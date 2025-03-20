@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../css/Devis.css';
+import '../css/devis.css';
 
 function Devis() {
     const [activeForm, setActiveForm] = useState<string | null>(null);
