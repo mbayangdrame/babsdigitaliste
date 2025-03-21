@@ -1,14 +1,79 @@
+import React, { useState } from 'react';
 import Devis from "../components/Devis";
 import HeaderFull from "../components/HeaderFull";
 import '../css/Contact.css';
+import emailjs from 'emailjs-com';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function Contact() {
+
+const Contact = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        phone: '',
+        email: '',
+        message: ''
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+    
+        emailjs.send(
+            'service_l0ln5kp', 
+            'template_08ehgb4', 
+            formData,
+            'gH_jajNR5D-xRpF0v' 
+        ).then(
+            (response) => {
+                console.log('Email envoyé avec succès:', response);
+                toast.success('Message envoyé avec succès ! 🎉', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
+                // Réinitialiser le formulaire après envoi
+                setFormData({
+                    name: '',
+                    phone: '',
+                    email: '',
+                    message: ''
+                });
+            },
+            (error) => {
+                console.log('Erreur lors de l\'envoi de l\'email:', error);
+                toast.error("Échec de l'envoi du message ❌", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
+            }
+        );
+    };
+    
+
     return (
         <>
-            <HeaderFull titre='Contact' />
+            <HeaderFull titre='Contact' paragraphe='Contactez-nous pour toute demande de devis ou pour plus d\informations sur nos services.' />
+            <ToastContainer />
             <div className="contact-container">
-                
-                
                 <div className="contact-content">
                     <div className="contact-info">
                         <div className="info-item">
@@ -19,8 +84,7 @@ function Contact() {
                             </div>
                             <div className="info-content">
                                 <h3>ADRESSE</h3>
-                                <p>Lot E2, Route de l'Aéroport,</p>
-                                <p>Dakar 10212</p>
+                                <p>Senegal, Dakar, cite avion</p>
                             </div>
                         </div>
 
@@ -32,7 +96,7 @@ function Contact() {
                             </div>
                             <div className="info-content">
                                 <h3>EMAIL</h3>
-                                <p>contact@layepro.com</p>
+                                <p>infos@babsdigitaliste.com</p>
                             </div>
                         </div>
 
@@ -44,32 +108,45 @@ function Contact() {
                             </div>
                             <div className="info-content">
                                 <h3>TÉLÉPHONE</h3>
-                                <p>(+221) 77 777 77 73</p>
+                                <p>+221 77 124 84 67</p>
                             </div>
                         </div>
                     </div>
 
-                    <form className="contact-form">
+                    <form className="contact-form" onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <input type="text" placeholder="Nom" />
+                            <input type="text" name="name" placeholder="Nom" 
+                                value={formData.name} onChange={handleChange} />
                         </div>
                         <div className="form-group">
-                            <input type="tel" placeholder="Téléphone" />
+                            <input type="tel" name="phone" placeholder="Téléphone" 
+                                value={formData.phone} onChange={handleChange} />
                         </div>
                         <div className="form-group">
-                            <input type="email" placeholder="Email" />
+                            <input type="email" name="email" placeholder="Email" 
+                                value={formData.email} onChange={handleChange} />
                         </div>
                         <div className="form-group">
-                            <textarea placeholder="Message..."></textarea>
+                            <textarea name="message" placeholder="Message..." 
+                                value={formData.message} onChange={handleChange}></textarea>
                         </div>
-                        <button type="submit">Envoyer</button>
+                        <button type="submit" style={{
+                            float: 'left',
+                            marginBottom: '1rem',
+                            backgroundColor: '#007E9C',
+                            color: '#fff',
+                            padding: '1rem 2rem',
+                            borderRadius: '8px'
+                        }}>
+                            Envoyer
+                        </button>
                     </form>
                 </div>
             </div>
 
             <Devis />
         </>
-    )
+    );
 }
 
 export default Contact;

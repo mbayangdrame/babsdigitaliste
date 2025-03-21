@@ -386,7 +386,7 @@ function PortfolioDetail() {
 
     return (
         <>
-            <HeaderFull titre={`${category}`} />
+            <HeaderFull titre={`${category}`} paragraphe="Découvrez nos travaux récents et notre expertise dans le domaine de la photographie et du vidéo." />
             
             <section className="py-16 text-white portfoliodetails">
                 <div className="container mx-auto px-4 md:px-6">

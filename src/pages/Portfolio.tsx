@@ -23,7 +23,7 @@ function Portfolio() {
 
     return (
         <>
-            <HeaderFull />
+            <HeaderFull titre='Portfolio' paragraphe='Découvrez nos travaux récents et notre expertise dans le domaine de la photographie et du vidéo.' />
             <section ref={ref} id="portfolio" className="py-12">
         <div className="container mx-auto px-6 ">
           

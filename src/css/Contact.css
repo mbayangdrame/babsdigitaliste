@@ -74,7 +74,13 @@
 .form-group {
     margin-bottom: 1.5rem;
 }
-
+.contact-form .form-group input, .contact-form .form-group textarea {
+    background-color: #888;  /* Fond gris léger */
+    border: 1px solid #009EAA;     /* Bordure gris clair */
+    padding: 1rem;            /* Ajouter un peu de padding pour plus d'espace */
+    border-radius: 8px;         /* Coins arrondis */
+    font-size: 1rem;            /* Taille de police */
+}
 .form-group input,
 .form-group textarea {
     width: 100%;
