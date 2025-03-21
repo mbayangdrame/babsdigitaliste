@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import emailjs from "@emailjs/browser";
+import emailjs from 'emailjs-com';
 import "../css/devis.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Devis = () => {
   const [activeForm, setActiveForm] = useState<string | null>(null);
@@ -35,18 +37,19 @@ const Devis = () => {
       )
       .then(
         () => {
-          alert("Votre demande a bien été envoyée !");
+          toast.success("Votre demande a bien été envoyée !");
           setFormData({ name: "", phone: "", email: "", message: "" }); // Réinitialisation du formulaire
         },
         (error) => {
           console.error("Erreur lors de l'envoi:", error);
-          alert("Une erreur est survenue. Veuillez réessayer !");
+          toast.error("Une erreur est survenue. Veuillez réessayer !");
         }
       );
   };
 
   return (
     <div className="devis-container">
+      <ToastContainer />
       <div className="devis-header">
         <span className="devis-subtitle">TRAVAILLONS ENSEMBLE</span>
         <h1 className="devis-title">DEMANDEZ VOTRE DEVIS</h1>

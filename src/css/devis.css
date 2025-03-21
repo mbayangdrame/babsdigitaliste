@@ -120,9 +120,9 @@
     color: #007E9C;
     font-size: 1rem;
 }
-/* .devis-form .form-group input::placeholder, .devis-form .form-group textarea::placeholder {
-    color: #007E9C !important;  
-} */
+.devis-form .form-group input::placeholder, .devis-form .form-group textarea::placeholder {
+    color: #000 !important;  
+}
 .form-group input::placeholder,
 .form-group textarea::placeholder {
     color: rgba(255, 255, 255, 0.5);
