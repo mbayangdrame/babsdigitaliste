@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import img1 from '../img/babsAbout.jpg';
-import img2 from '../img/site1.jpg';
+import img1 from '/img/babsAbout.jpg';
+import img2 from '/img/site1.jpg';
 import '../css/aboutindex.css'
 const AboutSection = () => {
   return (

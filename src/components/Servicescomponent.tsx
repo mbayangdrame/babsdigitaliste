@@ -1,14 +1,14 @@
 import React from 'react';
 import '../css/Servicescomponent.css';
-import imbabs from '../img/site1.jpg'
-import imbabs1 from '../img/sonko.jpg'
-import service1 from '../img/Créationdecontenusmultimédias.png';
-import service2 from '../img/tirage.jpg';
-import service3 from '../img/Infographie.png';
-import service4 from '../img/Vidéographie.webp'
-import service5 from '../img/events.jpg';
-import service6 from '../img/photographiie.jpg';
-import service7 from '../img/servicepersonnalise.jpg';
+import imbabs from '/img/site1.jpg'
+import imbabs1 from '/img/sonko.jpg'
+import service1 from '/img/creations.png';
+import service2 from '/img/tirage.jpg';
+import service3 from '/img/Infographie.png';
+import service4 from '/img/vidéographie.webp'
+import service5 from '/img/events.jpg';
+import service6 from '/img/photographiie.jpg';
+import service7 from '/img/servicepersonnalise.jpg';
 const ServicesComponent: React.FC = () => {
   return (
     <>

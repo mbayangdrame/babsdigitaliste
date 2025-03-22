@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Menu, X } from "lucide-react";
 import { Link } from 'react-router-dom';
-import logo from '../img/logobabs.png';
+import logo from '/img/logobabs.png';
 import { useState } from 'react';
 
 const Header = () => {

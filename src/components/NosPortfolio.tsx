@@ -2,12 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Link } from 'react-router-dom';
-import img1 from '../img/nature.jpg';
-import img2 from '../img/politique.png';
-import img3 from '../img/shoot.png';
-import img4 from '../img/mariage.png';
-import img5 from '../img/mode.png';
-import img6 from '../img/events.jpg';
+import img1 from '/img/nature.jpg';
+import img2 from '/img/politique.png';
+import img3 from '/img/shoot.png';
+import img4 from '/img/mariage.png';
+import img5 from '/img/mode.png';
+import img6 from '/img/events.jpg';
 // Ajoutez l'interface pour les props
 interface NosPortfolioProps {
   style?: React.CSSProperties;

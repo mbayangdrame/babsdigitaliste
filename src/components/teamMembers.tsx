@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import img from  '../img/_25A0015.jpg';
+import img from  '/img/_25A0015.jpg';
 const teamMembers = [
   {
     name: "Babs",

@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 
-import logo from "../img/logobabs.png";
+import logo from "/img/logobabs.png";
 
 // Définition des types des props
 interface HeaderFullProps {
