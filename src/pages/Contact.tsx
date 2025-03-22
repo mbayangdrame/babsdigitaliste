@@ -84,7 +84,7 @@ const Contact = () => {
                             </div>
                             <div className="info-content">
                                 <h3>ADRESSE</h3>
-                                <p>Senegal, Dakar, cite avion</p>
+                                <p>Dakar,Senegal</p>
                             </div>
                         </div>
 

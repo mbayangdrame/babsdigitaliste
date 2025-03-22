@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
           <h3 className="text-xl font-medium mb-6">Contactez-nous</h3>
           <div className="space-y-6">
             <p className="text-gray-400">
-              Senegal, Dakar, cite avion
+               Dakar,Senegal
             </p>
             <div className="flex items-center space-x-3">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#009EAA]" viewBox="0 0 20 20" fill="currentColor">

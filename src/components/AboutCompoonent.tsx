@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 const Counter = ({ value }: { value: number }) => {

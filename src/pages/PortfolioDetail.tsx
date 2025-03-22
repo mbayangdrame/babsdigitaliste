@@ -10,6 +10,7 @@ import niodior1 from '../img/niodior1.jpg';
 import niodior2 from '../img/niodior2.jpg';
 import niodior3 from '../img/niodor3.jpg';
 import niodior5 from '../img/niodor5.jpg';
+import portrait1 from '../img/portrait.jpg';
 import goree1 from '../img/Goree1.jpg';
 import goree2 from '../img/Goree2.jpg';
 import goree3 from '../img/Goree3.jpg';
@@ -67,6 +68,7 @@ import appel2 from '../img/appel2.jpg';
 import appel3 from '../img/appel3.jpg';
 import appel4 from '../img/appel4.jpg';
 import appel5 from '../img/appel5.jpg';
+import appel6 from '../img/pontappel.jpg';
 
 import unipro from '../img/uniipro.jpg';
 import unipro1 from '../img/unipro1.jpg';
@@ -84,6 +86,17 @@ import bamby1 from '../img/bamby1.jpg';
 import ibaaku from '../img/ibaaku.jpg';
 import ibaaku1 from '../img/ibaaku2.jpg';
 
+import portrait15 from '../img/portrait15.jpg';
+import portrait16 from '../img/portrait16.jpg';
+import portrait17 from '../img/portrait17.jpg';
+import portrait18 from '../img/portrait18.jpg';
+import portrait19 from '../img/portrait19.jpg';
+
+import richard from '../img/richard5.jpg';
+import richard1 from '../img/richard1.jpg';
+import richard2 from '../img/richard2.jpg';
+import richard3 from '../img/richard3.jpg';
+import richard4 from '../img/richard4.jpg';
 
 import '../css/portfoliodetail.css';
 function PortfolioDetail() {
@@ -153,12 +166,39 @@ function PortfolioDetail() {
         ],
         portrait: [
             {
-                url: "https://images.unsplash.com/photo-1519741497674-611481863552",
-                title: "Portraits en Lumière Naturelle",
-                description: "Portrait artistique en lumière naturelle",
+                url: portrait1,
+                title: "Le Lac des Montagnes",
+                description: "Une magnifique vue sur la nature sauvage",
                 album: [
-                    "https://images.unsplash.com/photo-1519741497674-611481863552",
-                    // Ajoutez d'autres URLs pour l'album
+                    "https://images.unsplash.com/photo-1511285560929-80b456fea0bc",
+                    "https://images.unsplash.com/photo-1505765050516-f72dcac9c60e",
+                    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
+                    "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1",
+                    "https://images.unsplash.com/photo-1433086966358-54859d0ed716"
+                ]
+            },
+            {
+                url: portrait17,
+                title: "Le Lac des Montagnes",
+                description: "Paysage naturel spectaculaire",
+                album: [
+                    portrait16,
+                    portrait15,
+                    portrait18,
+                    portrait19,
+                    portrait17
+                ]
+            },
+            {
+                url: richard,
+                title: "Richard ,Artiste Sénégalais",
+                description: "Nature sauvage préservée",
+                album: [
+                   richard1,
+                   richard2,
+                   richard3,
+                   richard4,
+                   richard
                 ]
             },
         ],
@@ -342,7 +382,7 @@ function PortfolioDetail() {
                     appel3,
                     appel4,
                     appel5,
-                    appel
+                    appel6
                 ]
             }
         ]

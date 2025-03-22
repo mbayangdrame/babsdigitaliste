@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Link } from 'react-router-dom';
@@ -12,7 +13,7 @@ interface NosPortfolioProps {
   style?: React.CSSProperties;
 }
 
-function NosPortfolio({ style }: NosPortfolioProps) {
+const NosPortfolio=({ style }: NosPortfolioProps) =>{
 
     const [ref, inView] = useInView({
         triggerOnce: true,

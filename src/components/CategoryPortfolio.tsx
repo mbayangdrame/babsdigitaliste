@@ -47,6 +47,7 @@ import appel2 from '../img/appel2.jpg';
 import appel3 from '../img/appel3.jpg';
 import appel4 from '../img/appel4.jpg';
 import appel5 from '../img/appel5.jpg';
+import appel6 from '../img/pontappel.jpg';
 
 import unipro from '../img/uniipro.jpg';
 import unipro1 from '../img/unipro1.jpg';
@@ -63,6 +64,19 @@ import bamby from '../img/bamby.jpg';
 import bamby1 from '../img/bamby1.jpg';
 import ibaaku from '../img/ibaaku.jpg';
 import ibaaku1 from '../img/ibaaku2.jpg';
+
+import portrait15 from '../img/portrait15.jpg';
+import portrait16 from '../img/portrait16.jpg';
+import portrait17 from '../img/portrait17.jpg';
+import portrait18 from '../img/portrait18.jpg';
+import portrait19 from '../img/portrait19.jpg';
+
+import richard from '../img/richard5.jpg';
+import richard1 from '../img/richard1.jpg';
+import richard2 from '../img/richard2.jpg';
+import richard3 from '../img/richard3.jpg';
+import richard4 from '../img/richard4.jpg';
+
 import "../css/portfoliodetail.css"
 
 function CategoryPortfolio() {
@@ -144,41 +158,41 @@ function CategoryPortfolio() {
                 ]
             },
             {
-                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+                url: portrait17,
                 title: "Le Lac des Montagnes",
                 description: "Paysage naturel spectaculaire",
                 album: [
-                    "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-                    "https://images.unsplash.com/photo-1501854140801-50d01698950b",
-                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
-                    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",
-                    "https://images.unsplash.com/photo-1490730141103-6cac27aaab94"
+                    portrait16,
+                    portrait15,
+                    portrait18,
+                    portrait19,
+                    portrait17
                 ]
             },
             {
-                url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff",
+                url: richard,
                 title: "Le Lac des Montagnes",
                 description: "Nature sauvage préservée",
                 album: [
-                    "https://images.unsplash.com/photo-1426604966848-d7adac402bff",
-                    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
-                    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d",
-                    "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
-                    "https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5"
+                   richard1,
+                   richard2,
+                   richard3,
+                   richard4,
+                   richard
                 ]
             },
-            {
-                url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",
-                title: "Le Lac des Montagnes",
-                description: "Vue panoramique naturelle",
-                album: [
-                    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",
-                    "https://images.unsplash.com/photo-1542224566-6e85f2e6772f",
-                    "https://images.unsplash.com/photo-1473773508845-188df298d2d1",
-                    "https://images.unsplash.com/photo-1444464666168-49d633b86797",
-                    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07"
-                ]
-            }
+            // {
+            //     url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",
+            //     title: "Le Lac des Montagnes",
+            //     description: "Vue panoramique naturelle",
+            //     album: [
+            //         "https://images.unsplash.com/photo-1472214103451-9374bd1c798e",
+            //         "https://images.unsplash.com/photo-1542224566-6e85f2e6772f",
+            //         "https://images.unsplash.com/photo-1473773508845-188df298d2d1",
+            //         "https://images.unsplash.com/photo-1444464666168-49d633b86797",
+            //         "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07"
+            //     ]
+            // }
         ],
         mariage: [
             {
@@ -369,7 +383,7 @@ function CategoryPortfolio() {
                     appel3,
                     appel4,
                     appel5,
-                    appel
+                    appel6
                 ]
             }
         ]
@@ -389,7 +403,7 @@ function CategoryPortfolio() {
 
     return (
        <>
-        <HeaderFull titre={` ${category}`} />
+        <HeaderFull titre={` ${category}`} paragraphe="Découvrez nos travaux récents et notre expertise dans le domaine de la photographie et du vidéo." />
        
        <section className="py-32 portfoliodetails">
             <div className="container mx-auto px-6">

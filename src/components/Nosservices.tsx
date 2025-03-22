@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
+import React from "react";
 import { useInView } from 'react-intersection-observer';
 import '../css/service.css'
 import IMG1 from '../img/_25A0015.jpg';
 import IMG2 from '../img/IMG_31872.jpg';
 import IMG3 from '../img/DSC09801.jpg';
 import IMG4 from '../img/evenemennts.jpg';
-function Nosservices() {
+const Nosservices=() =>{
     const [ref, inView] = useInView({
         triggerOnce: true,
         threshold: 0.1,
