@@ -1,0 +1,51 @@
+{
+  "name": "babsdigitaliste-backend",
+  "version": "1.0.0",
+  "description": "Backend API pour la gestion des images du portfolio Babs Digitaliste",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm ci --only=production && node scripts/build-frontend.js",
+    "init-db": "node scripts/init-db.js",
+    "migrate-uploads": "node scripts/migrate-uploads-to-persistent.js",
+    "check-storage": "node scripts/check-persistent-storage.js",
+    "regenerate-thumbnails": "node scripts/regenerate-missing-thumbnails.js",
+    "diagnose-images": "node scripts/diagnose-image-issues.js",
+    "diagnose-filesystem": "node scripts/diagnose-filesystem.js",
+    "test-upload-persistence": "node scripts/test-upload-persistence.js",
+    "optimize-database": "node scripts/optimize-database.js",
+    "test-api": "node scripts/test-api-endpoints.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.55.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^5.5.1",
+    "form-data": "^4.0.4",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.3",
+    "pg-protocol": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "photography",
+    "portfolio",
+    "api",
+    "postgresql"
+  ],
+  "author": "Babs Digitaliste",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
