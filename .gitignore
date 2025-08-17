@@ -7,7 +7,7 @@ dist/
 
 # Images et uploads
 
-backend/uploads/
+# backend/uploads/
 
 # Variables d'environnement
 .env
