@@ -48,8 +48,6 @@ interface AlbumDetail {
   created_at: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-
 // Fonction utilitaire pour les requêtes avec CORS
 const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
   // Ne pas forcer Content-Type pour FormData (laissera le navigateur le définir automatiquement)
@@ -228,17 +226,8 @@ const Admin: React.FC = () => {
   };
 
   const fetchAlbums = async () => {
-    try {
-      const response = await fetchWithCORS(`${API_BASE_URL}/images/albums`);
-      const data = await response.json();
-      if (data.success) {
-        setAlbums(data.data);
-      } else {
-        console.error('Albums fetch failed:', data.message);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des albums:', error);
-    }
+    const { data, error } = await supabase.from('albums').select('*');
+    if (!error && data) setAlbums(data);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,70 +300,48 @@ const Admin: React.FC = () => {
 
   const handleUpdateImage = async () => {
     if (!editingImage) return;
-
     try {
-      let response;
-      
+      let imageUrl = editingImage.image_url;
       if (newImageFile) {
-        // Si une nouvelle image est sélectionnée, utiliser FormData
-        const formData = new FormData();
-        formData.append('image', newImageFile);
-        formData.append('title', editingImage.title);
-        formData.append('description', editingImage.description || '');
-        formData.append('album_name', editingImage.album_name || '');
-        formData.append('event_date', editingImage.event_date || '');
-        // Trouver l'ID de catégorie basé sur le nom
-        const category = categories.find(cat => cat.name === editingImage.category_name);
-        formData.append('category_id', category?.id.toString() || '1');
-
-        response = await fetchWithCORS(`${API_BASE_URL}/images/${editingImage.id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-      } else {
-        // Sinon, utiliser JSON pour les autres champs
-        response = await fetchWithCORS(`${API_BASE_URL}/images/${editingImage.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(editingImage)
-        });
+        const uploadRes = await apiService.uploadImage(newImageFile);
+        if (uploadRes.success && uploadRes.url) {
+          imageUrl = uploadRes.url;
+        } else {
+          toast.error(uploadRes.message);
+          return;
+        }
       }
-
-      const data = await response.json();
-
-      if (data.success) {
+      const { error } = await supabase.from('images').update({
+        title: editingImage.title,
+        description: editingImage.description,
+        album_name: editingImage.album_name,
+        event_date: editingImage.event_date,
+        image_url: imageUrl
+      }).eq('id', editingImage.id);
+      if (!error) {
         toast.success('Image modifiée avec succès');
         setShowEditModal(false);
         setEditingImage(null);
         setNewImageFile(null);
         fetchImages();
       } else {
-        toast.error(data.message || 'Erreur lors de la modification');
+        toast.error('Erreur lors de la modification');
       }
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la modification');
     }
   };
 
   const handleViewAlbum = async (albumName: string) => {
-    try {
-      const response = await fetchWithCORS(`${API_BASE_URL}/images/album/${encodeURIComponent(albumName)}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setAlbumImages(data.data);
-        setSelectedAlbum(albumName);
-        setShowAlbumModal(true);
-      } else {
-        toast.error('Erreur lors du chargement de l\'album');
-      }
-    } catch (error) {
+    const { data, error } = await supabase
+      .from('images')
+      .select('*')
+      .eq('album_name', albumName);
+    if (!error && data) {
+      setAlbumImages(data);
+      setSelectedAlbum(albumName);
+      setShowAlbumModal(true);
+    } else {
       toast.error('Erreur lors du chargement de l\'album');
     }
   };
@@ -394,38 +361,30 @@ const Admin: React.FC = () => {
     }
     setAddToAlbumUploading(true);
     try {
-      const formData = new FormData();
       for (let i = 0; i < addToAlbumFiles.length; i++) {
-        formData.append('images', addToAlbumFiles[i]);
+        const file = addToAlbumFiles[i];
+        const uploadRes = await apiService.uploadImage(file);
+        if (uploadRes.success && uploadRes.url) {
+          await supabase.from('images').insert([
+            {
+              title: '',
+              description: '',
+              image_url: uploadRes.url,
+              category_slug: '', // à adapter si besoin
+              album_name: addToAlbumName,
+              event_date: ''
+            }
+          ]);
+        } else {
+          toast.error(uploadRes.message);
+        }
       }
-      // On récupère la catégorie du premier élément de l'album
-      const albumImages = images.filter(img => (img.album_name || 'Sans album') === addToAlbumName);
-      const category = albumImages[0]?.category_name;
-      const categoryObj = categories.find(cat => cat.name === category);
-      formData.append('category_id', categoryObj?.id?.toString() || '1');
-      formData.append('album_name', addToAlbumName);
-      // Les autres champs sont vides ou par défaut
-      formData.append('title', '');
-      formData.append('description', '');
-      formData.append('event_date', '');
-      const response = await fetchWithCORS(`${API_BASE_URL}/images/bulk`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast.success('Images ajoutées à l\'album !');
-        fetchImages();
-        setShowAddToAlbumModal(false);
-        setAddToAlbumFiles(null);
-        setAddToAlbumName(null);
-      } else {
-        toast.error(data.message || 'Erreur lors de l\'upload');
-      }
-    } catch (error) {
+      toast.success('Images ajoutées à l\'album !');
+      fetchImages();
+      setShowAddToAlbumModal(false);
+      setAddToAlbumFiles(null);
+      setAddToAlbumName(null);
+    } catch {
       toast.error('Erreur lors de l\'upload');
     } finally {
       setAddToAlbumUploading(false);
