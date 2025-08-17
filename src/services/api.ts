@@ -79,6 +79,7 @@ class ApiService {
       .from('images') // nom du bucket
       .upload(`public/${file.name}`, file);
     if (error) {
+      console.error('Erreur upload Supabase:', error);
       return { success: false, message: error.message };
     }
     return { success: true, message: 'Upload réussi', url: data?.path };
@@ -90,6 +91,7 @@ class ApiService {
     for (const file of files) {
       const { data, error } = await supabase.storage.from('images').upload(`public/${file.name}`, file);
       if (error) {
+        console.error('Erreur upload multiple Supabase:', error);
         return { success: false, message: error.message };
       }
       if (data?.path) {
