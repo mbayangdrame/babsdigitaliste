@@ -75,9 +75,11 @@ class ApiService {
 
   // Upload d'une image dans Supabase Storage
   async uploadImage(file: File): Promise<{ success: boolean; message: string; url?: string }> {
+    // Générer un nom unique pour chaque fichier
+    const uniqueName = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
       .from('images') // nom du bucket
-      .upload(`public/${file.name}`, file);
+      .upload(`public/${uniqueName}`, file);
     if (error) {
       console.error('Erreur upload Supabase:', error);
       return { success: false, message: error.message };
