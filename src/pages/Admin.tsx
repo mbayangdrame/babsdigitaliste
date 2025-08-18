@@ -121,8 +121,6 @@ const Admin: React.FC = () => {
   const [addToAlbumFiles, setAddToAlbumFiles] = useState<FileList | null>(null);
   const [addToAlbumUploading, setAddToAlbumUploading] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
   useEffect(() => {
     if (token) {
       verifyToken();
@@ -266,7 +264,7 @@ const Admin: React.FC = () => {
             }
           ]);
           if (insertError) {
-            toast.error('Erreur lors de l\'insertion dans la base');
+            toast.error("Erreur lors de l'insertion dans la base");
           }
         } else {
           toast.error(uploadRes.message);
@@ -280,13 +278,14 @@ const Admin: React.FC = () => {
       setImageDescription('');
       setImageAlbum('');
       setImageEventDate('');
+      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
     } catch {
-      toast.error('Erreur lors de l\'upload');
+      toast.error("Erreur lors de l'upload");
     } finally {
       setUploading(false);
     }
   };
-
   const handleDeleteImage = async (imageId: number) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) return;
     const { error } = await supabase.from('images').delete().eq('id', imageId);
@@ -426,39 +425,39 @@ const Admin: React.FC = () => {
       }
       setUploading(true);
       try {
-        const formData = new FormData();
         for (let i = 0; i < selectedFiles.length; i++) {
-          formData.append('images', selectedFiles[i]);
+          const file = selectedFiles[i];
+          const uploadRes = await apiService.uploadImage(file);
+          if (uploadRes.success && uploadRes.url) {
+            const { error: insertError } = await supabase.from('images').insert([
+              {
+                title: imageTitle,
+                description: imageDescription,
+                image_url: uploadRes.url,
+                category_id: selectedCategory,
+                album_name: imageAlbum,
+                event_date: imageEventDate
+              }
+            ]);
+            if (insertError) {
+              toast.error("Erreur lors de l'insertion dans la base");
+            }
+          } else {
+            toast.error(uploadRes.message);
+          }
         }
-        formData.append('category_id', selectedCategory.toString());
-        formData.append('title', imageTitle);
-        formData.append('description', imageDescription);
-        formData.append('album_name', imageAlbum);
-        formData.append('event_date', imageEventDate);
-        const response = await fetchWithCORS(`${API_BASE_URL}/images/bulk`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-        const data = await response.json();
-        if (data.success) {
-          toast.success(data.message);
-          fetchImages();
-          setSelectedFiles(null);
-          setSelectedCategory(null);
-          setImageTitle('');
-          setImageDescription('');
-          setImageAlbum('');
-          setImageEventDate('');
-          const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-          if (fileInput) fileInput.value = '';
-        } else {
-          toast.error(data.message || 'Erreur lors de l\'upload');
-        }
-      } catch (error) {
-        toast.error('Erreur lors de l\'upload');
+        toast.success('Upload réussi !');
+        fetchImages();
+        setSelectedFiles(null);
+        setSelectedCategory(null);
+        setImageTitle('');
+        setImageDescription('');
+        setImageAlbum('');
+        setImageEventDate('');
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      } catch {
+        toast.error("Erreur lors de l'upload");
       } finally {
         setUploading(false);
       }
