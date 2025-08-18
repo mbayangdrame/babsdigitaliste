@@ -3,7 +3,7 @@ import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import HeaderFull from './HeaderFull';
 import { useState, useEffect } from 'react';
-import { apiService, Image } from '../services/api';
+import { apiService, Image, Category } from '../services/api';
 
 import "../css/portfoliodetail.css"
 
@@ -21,18 +21,31 @@ function CategoryPortfolio() {
     const [albums, setAlbums] = useState<{ [key: string]: Image }>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
 
     console.log('Category param:', category);
+
+    // Charger les catégories au montage
+    useEffect(() => {
+        const loadCategories = async () => {
+            const cats = await apiService.getCategories();
+            setCategories(cats);
+        };
+        loadCategories();
+    }, []);
 
     // Charger les images depuis l'API et les organiser par album
     useEffect(() => {
         const loadImages = async () => {
             if (!category) return;
-            
+            // Trouver la catégorie correspondante
+            const catObj = categories.find(cat => cat.slug === category.toLowerCase());
+            if (!catObj) return;
             try {
                 setLoading(true);
                 setError(null);
-                const categoryImages = await apiService.getImagesByCategory(category.toLowerCase());
+                // Utiliser l'id numérique !
+                const categoryImages = await apiService.getImagesByCategory(catObj.id);
                 setImages(categoryImages);
                 
                 // Organiser les images par album
@@ -61,7 +74,7 @@ function CategoryPortfolio() {
         };
 
         loadImages();
-    }, [category]);
+    }, [category, categories]);
     
     if (!category || !validCategories.includes(category.toLowerCase())) {
         console.log('Invalid category, redirecting...');
