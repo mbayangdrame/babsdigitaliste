@@ -16,7 +16,7 @@ interface Image {
   album_name?: string;
   event_date?: string;
   category_name: string;
-  category_slug: string;
+  category_id: number;
   is_featured: boolean;
   sort_order: number;
   created_at: string;
@@ -85,7 +85,7 @@ const Admin: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [uploading, setUploading] = useState(false);
   const [imageTitle, setImageTitle] = useState<string>('');
@@ -120,6 +120,8 @@ const Admin: React.FC = () => {
   const [addToAlbumName, setAddToAlbumName] = useState<string | null>(null);
   const [addToAlbumFiles, setAddToAlbumFiles] = useState<FileList | null>(null);
   const [addToAlbumUploading, setAddToAlbumUploading] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
   useEffect(() => {
     if (token) {
@@ -216,8 +218,12 @@ const Admin: React.FC = () => {
   };
 
   const fetchImages = async () => {
-    const imgs = await apiService.getImagesByCategory(selectedCategory || '');
-    setImages(imgs);
+    if (selectedCategory !== null && selectedCategory !== undefined) {
+      const imgs = await apiService.getImagesByCategory(selectedCategory);
+      setImages(imgs);
+    } else {
+      setImages([]);
+    }
   };
 
   const fetchCategories = async () => {
@@ -254,7 +260,7 @@ const Admin: React.FC = () => {
               title: imageTitle,
               description: imageDescription,
               image_url: uploadRes.url,
-              category_slug: selectedCategory,
+              category_id: selectedCategory,
               album_name: imageAlbum,
               event_date: imageEventDate
             }
@@ -269,7 +275,7 @@ const Admin: React.FC = () => {
       toast.success('Upload réussi !');
       fetchImages();
       setSelectedFiles(null);
-      setSelectedCategory('');
+      setSelectedCategory(null);
       setImageTitle('');
       setImageDescription('');
       setImageAlbum('');
@@ -370,7 +376,7 @@ const Admin: React.FC = () => {
               title: '',
               description: '',
               image_url: uploadRes.url,
-              category_slug: '', // à adapter si besoin
+              category_id: '', // à adapter si besoin
               album_name: addToAlbumName,
               event_date: ''
             }
@@ -399,7 +405,7 @@ const Admin: React.FC = () => {
   }> = ({ categories, token, fetchImages }) => {
     const [imageTitle, setImageTitle] = useState('');
     const [imageAlbum, setImageAlbum] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [imageEventDate, setImageEventDate] = useState('');
     const [imageDescription, setImageDescription] = useState('');
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
@@ -424,7 +430,7 @@ const Admin: React.FC = () => {
         for (let i = 0; i < selectedFiles.length; i++) {
           formData.append('images', selectedFiles[i]);
         }
-        formData.append('category_id', selectedCategory);
+        formData.append('category_id', selectedCategory.toString());
         formData.append('title', imageTitle);
         formData.append('description', imageDescription);
         formData.append('album_name', imageAlbum);
@@ -441,7 +447,7 @@ const Admin: React.FC = () => {
           toast.success(data.message);
           fetchImages();
           setSelectedFiles(null);
-          setSelectedCategory('');
+          setSelectedCategory(null);
           setImageTitle('');
           setImageDescription('');
           setImageAlbum('');
@@ -494,8 +500,8 @@ const Admin: React.FC = () => {
           <div className="relative">
             <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-[#009EAA] w-5 h-5 pointer-events-none" />
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory ?? ''}
+              onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
               className="w-full pl-10 pr-8 py-2 border-2 border-[#009EAA] bg-[#f5f7fa] text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#009EAA] focus:border-[#009EAA] transition-all duration-200 appearance-none"
             >
               <option value="">Sélectionner une catégorie</option>
@@ -1244,13 +1250,13 @@ const Admin: React.FC = () => {
 
   // Composant Catégories avec cartes modernes
   const CategoriesSection = ({ categories, images }: { categories: Category[], images: Image[] }) => {
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [categoryImages, setCategoryImages] = useState<Image[]>([]);
 
-    const handleCategoryClick = (categorySlug: string) => {
-      const filteredImages = images.filter(img => img.category_slug === categorySlug);
+    const handleCategoryClick = (categoryId: number) => {
+      const filteredImages = images.filter(img => img.category_id === categoryId);
       setCategoryImages(filteredImages);
-      setSelectedCategory(categorySlug);
+      setSelectedCategory(categoryId);
     };
 
     const getCategoryColor = (index: number) => {
@@ -1291,7 +1297,7 @@ const Admin: React.FC = () => {
         {/* Grille des catégories */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {categories.map((cat, index) => {
-            const categoryImages = images.filter(img => img.category_slug === cat.slug);
+            const categoryImages = images.filter(img => img.category_id === cat.id);
             const recentImages = categoryImages.slice(0, 3);
             
             return (
@@ -1301,7 +1307,7 @@ const Admin: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group hover:shadow-lg transition-all duration-300 cursor-pointer"
-                onClick={() => handleCategoryClick(cat.slug)}
+                onClick={() => handleCategoryClick(cat.id)}
               >
                 {/* Header de la catégorie */}
                 <div className={`bg-gradient-to-r ${getCategoryColor(index)} p-6 text-white`}>
@@ -1405,7 +1411,7 @@ const Admin: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {categories.find(cat => cat.slug === selectedCategory)?.name}
+                      {categories.find(cat => cat.id === selectedCategory)?.name}
                     </h3>
                     <p className="text-gray-600">{categoryImages.length} image(s)</p>
                   </div>

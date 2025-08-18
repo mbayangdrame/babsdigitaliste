@@ -9,7 +9,7 @@ export interface Image {
   album_name?: string;
   event_date?: string;
   category_name: string;
-  category_slug: string;
+  category_id: number;
   is_featured: boolean;
   sort_order: number;
   created_at: string;
@@ -48,11 +48,11 @@ class ApiService {
   }
 
   // Récupérer les images par catégorie
-  async getImagesByCategory(categorySlug: string): Promise<Image[]> {
+  async getImagesByCategory(categoryId: number): Promise<Image[]> {
     const { data, error } = await supabase
       .from('images')
       .select('*')
-      .eq('category_slug', categorySlug);
+      .eq('category_id', categoryId);
     if (error) {
       console.error('Erreur Supabase:', error);
       return [];
