@@ -2,7 +2,7 @@ import { useParams, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import HeaderFull from '../components/HeaderFull';
 import { useState, useEffect } from 'react';
-import { apiService, Image } from '../services/api';
+import { apiService, Image, getImageUrl } from '../services/api';
 
 import '../css/portfoliodetail.css';
 import { Calendar } from 'lucide-react';
@@ -50,9 +50,9 @@ function PortfolioDetail() {
                 } else {
                     // C'est un ID d'image individuelle
                     const categoryImages = await apiService.getImagesByCategory(category.toLowerCase());
-                    const imageIndex = parseInt(id);
+                    const imageIndex = Number(id);
                     
-                    if (imageIndex >= 0 && imageIndex < categoryImages.length) {
+                    if (!isNaN(imageIndex) && imageIndex >= 0 && imageIndex < categoryImages.length) {
                         const selectedImage = categoryImages[imageIndex];
                         setImage(selectedImage);
                         
@@ -112,7 +112,7 @@ function PortfolioDetail() {
     }
 
     const handleImageClick = (image: Image, index: number) => {
-        setSelectedImage(apiService.getImageUrl(image.image_url));
+        setSelectedImage(getImageUrl(image.image_url));
         setCurrentImageIndex(index);
         setShowModal(true);
     };
@@ -121,14 +121,14 @@ function PortfolioDetail() {
         e.stopPropagation();
         const newIndex = (currentImageIndex - 1 + albumImages.length) % albumImages.length;
         setCurrentImageIndex(newIndex);
-        setSelectedImage(apiService.getImageUrl(albumImages[newIndex].image_url));
+        setSelectedImage(getImageUrl(albumImages[newIndex].image_url));
     };
 
     const handleNextImage = (e: React.MouseEvent) => {
         e.stopPropagation();
         const newIndex = (currentImageIndex + 1) % albumImages.length;
         setCurrentImageIndex(newIndex);
-        setSelectedImage(apiService.getImageUrl(albumImages[newIndex].image_url));
+        setSelectedImage(getImageUrl(albumImages[newIndex].image_url));
     };
 
     return (
@@ -175,7 +175,7 @@ function PortfolioDetail() {
                                 onClick={() => handleImageClick(albumImage, index)}
                             >
                                 <img 
-                                    src={apiService.getImageUrl(albumImage.thumbnail_url || albumImage.image_url)} 
+                                    src={getImageUrl(albumImage.thumbnail_url || albumImage.image_url)} 
                                     alt={`${albumImage.title} - Photo ${index + 1}`}
                                     className="w-full h-[542px] object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                                     onError={(e) => {
@@ -186,7 +186,7 @@ function PortfolioDetail() {
                                         
                                         // Essayer d'abord l'image originale si le thumbnail échoue
                                         if (albumImage.thumbnail_url && albumImage.image_url !== albumImage.thumbnail_url) {
-                                            const originalUrl = apiService.getImageUrl(albumImage.image_url);
+                                            const originalUrl = getImageUrl(albumImage.image_url);
                                             e.currentTarget.src = originalUrl;
                                             e.currentTarget.onerror = () => {
                                                 // Vérifier à nouveau que l'élément existe

@@ -3,7 +3,7 @@ import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import HeaderFull from './HeaderFull';
 import { useState, useEffect } from 'react';
-import { apiService, Image, Category } from '../services/api';
+import { apiService, Image, Category, getImageUrl } from '../services/api';
 
 import "../css/portfoliodetail.css"
 
@@ -136,7 +136,7 @@ function CategoryPortfolio() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {Object.entries(albums).map(([albumKey, image], index) => {
                         const isVideo = category.toLowerCase() === 'videos';
-                        const thumbnailUrl = image.thumbnail_url || image.image_url;
+                        const thumbnailUrl = getImageUrl(image.thumbnail_url || image.image_url);
                         
 
 
@@ -162,7 +162,7 @@ function CategoryPortfolio() {
                                         
                                         // Essayer d'abord l'image originale si le thumbnail échoue
                                         if (image.thumbnail_url && image.image_url !== image.thumbnail_url) {
-                                            const originalUrl = apiService.getImageUrl(image.image_url);
+                                            const originalUrl = getImageUrl(image.image_url);
                                             e.currentTarget.src = originalUrl;
                                             e.currentTarget.onerror = () => {
                                                 // Vérifier à nouveau que l'élément existe

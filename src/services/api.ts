@@ -102,4 +102,12 @@ class ApiService {
   }
 }
 
-export const apiService = new ApiService(); 
+export const apiService = new ApiService();
+
+export function getImageUrl(path: string) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  // Supprime le préfixe 'public/' si présent
+  const cleanPath = path.replace(/^public\//, '');
+  return `https://klvrhlxerqhofvjgkcma.supabase.co/storage/v1/object/public/${cleanPath}`;
+} 
