@@ -136,7 +136,7 @@ function CategoryPortfolio() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {Object.entries(albums).map(([albumKey, image], index) => {
                         const isVideo = category.toLowerCase() === 'videos';
-                        const thumbnailUrl = apiService.getImageUrl(image.thumbnail_url || image.image_url);
+                        const thumbnailUrl = image.thumbnail_url || image.image_url;
                         
 
 
