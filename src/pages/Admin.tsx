@@ -831,7 +831,7 @@ const Admin: React.FC = () => {
 
     // Filtrage des images
     const filteredImages = images.filter(img => {
-      const matchesCategory = !filterCategory || img.category_name === filterCategory;
+      const matchesCategory = !filterCategory || img.category_id === Number(filterCategory);
       const matchesSearch = !searchTerm || 
         img.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         img.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -873,8 +873,8 @@ const Admin: React.FC = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#009EAA] focus:border-transparent text-gray-900"
               >
                 <option value="">Toutes les catégories</option>
-                {Array.from(new Set(images.map(img => img.category_name))).map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
