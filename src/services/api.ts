@@ -102,6 +102,13 @@ class ApiService {
     }
     return { success: true, message: 'Upload multiple réussi', images: results };
   }
+
+  // Récupérer toutes les images
+  async getAllImages(): Promise<Image[]> {
+    const { data, error } = await supabase.from('images').select('*');
+    if (error) return [];
+    return data || [];
+  }
 }
 
 export const apiService = new ApiService();

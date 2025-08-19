@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
 import { Edit, Trash2, Upload, Eye, Calendar, Folder, Tag, Plus, X, Save, Image as ImageIcon, TrendingUp } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
-import { apiService } from '../services/api';
+import { apiService, getImageUrl } from '../services/api';
 import { supabase } from '../services/supabaseClient';
 
 interface Image {
@@ -220,7 +220,12 @@ const Admin: React.FC = () => {
       const imgs = await apiService.getImagesByCategory(selectedCategory);
       setImages(imgs);
     } else {
-      setImages([]);
+      if (typeof apiService.getAllImages === 'function') {
+        const imgs = await apiService.getAllImages();
+        setImages(imgs);
+      } else {
+        setImages([]);
+      }
     }
   };
 
@@ -899,7 +904,7 @@ const Admin: React.FC = () => {
             >
               <div className="relative">
                 <img 
-                  src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${img.thumbnail_url}`} 
+                  src={getImageUrl(img.thumbnail_url)} 
                   alt={img.title} 
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
                 />
@@ -1112,7 +1117,7 @@ const Admin: React.FC = () => {
                 <div className="relative">
                   {coverImage ? (
                     <img 
-                      src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${coverImage.thumbnail_url}`} 
+                      src={getImageUrl(coverImage.thumbnail_url)} 
                       alt={album.album_name} 
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
                     />
@@ -1171,7 +1176,7 @@ const Admin: React.FC = () => {
                       {albumImages.slice(0, 4).map((img, idx) => (
                         <div key={idx} className="w-8 h-8 rounded overflow-hidden">
                           <img 
-                            src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${img.thumbnail_url}`} 
+                            src={getImageUrl(img.thumbnail_url)} 
                             alt="" 
                             className="w-full h-full object-cover"
                           />
@@ -1337,7 +1342,7 @@ const Admin: React.FC = () => {
                       {recentImages.map((img, idx) => (
                         <div key={idx} className="aspect-square rounded-lg overflow-hidden">
                           <img 
-                            src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${img.thumbnail_url}`} 
+                            src={getImageUrl(img.thumbnail_url)} 
                             alt="" 
                             className="w-full h-full object-cover"
                           />
@@ -1433,7 +1438,7 @@ const Admin: React.FC = () => {
                     >
                       <div className="relative">
                         <img
-                          src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${image.thumbnail_url}`}
+                          src={getImageUrl(image.thumbnail_url)}
                           alt={image.title}
                           className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -1737,7 +1742,7 @@ const Admin: React.FC = () => {
               {/* Header avec image de fond floutée et overlay */}
               <div className="relative h-40 rounded-t-3xl overflow-hidden flex items-center justify-center">
                 <img
-                  src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${editingImage.image_url}`}
+                  src={getImageUrl(editingImage.image_url)}
                   alt={editingImage.title}
                   className="absolute inset-0 w-full h-full object-cover blur-md scale-110"
                 />
@@ -1746,7 +1751,7 @@ const Admin: React.FC = () => {
                 <div className="relative z-10 flex flex-col items-center justify-center w-full">
                   <div className="-mb-12">
                     <img
-                      src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${editingImage.thumbnail_url}`}
+                      src={getImageUrl(editingImage.thumbnail_url)}
                       alt={editingImage.title}
                       className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover bg-white"
                     />
@@ -1895,7 +1900,7 @@ const Admin: React.FC = () => {
                   >
                     <div className="relative">
                       <img
-                        src={`${(import.meta.env.VITE_API_URL || '/api').replace(/\/api$/, '')}${image.thumbnail_url}`}
+                        src={getImageUrl(image.thumbnail_url)}
                         alt={image.title}
                         className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
