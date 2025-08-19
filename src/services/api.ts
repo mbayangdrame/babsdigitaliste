@@ -109,7 +109,7 @@ export const apiService = new ApiService();
 export function getImageUrl(path: string) {
   if (!path) return '';
   if (path.startsWith('http')) return path;
-  // Supprime tous les / initiaux et le préfixe 'public/' s'il y a double slash
+  // Supprime tous les / initiaux et le préfixe 'public/'
   const cleanPath = path.replace(/^\/+/, '').replace(/^public\//, '');
-  return `https://klvrhlxerqhofvjgkcma.supabase.co/storage/v1/object/public/${cleanPath}`;
+  return `https://klvrhlxerqhofvjgkcma.supabase.co/storage/v1/object/public/images/${cleanPath}`;
 }
