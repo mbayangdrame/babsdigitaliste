@@ -823,7 +823,7 @@ const Admin: React.FC = () => {
   );
 
   // Composant Galerie avec pagination et cartes modernes
-  const GalerieSection = ({ images, handleEditImage, handleDeleteImage, handleViewAlbum }: { images: Image[], handleEditImage: (img: Image) => void, handleDeleteImage: (id: number) => void, handleViewAlbum: (albumName: string) => void }) => {
+  const GalerieSection = ({ images, categories, handleEditImage, handleDeleteImage, handleViewAlbum }: { images: Image[], categories: Category[], handleEditImage: (img: Image) => void, handleDeleteImage: (id: number) => void, handleViewAlbum: (albumName: string) => void }) => {
     const [page, setPage] = useState(1);
     const [filterCategory, setFilterCategory] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -1685,7 +1685,7 @@ const Admin: React.FC = () => {
               </DashboardSection>
             )}
             {activeSection === 'galerie' && (
-              <GalerieSection images={images} handleEditImage={handleEditImage} handleDeleteImage={handleDeleteImage} handleViewAlbum={handleViewAlbum} />
+              <GalerieSection images={images} categories={categories} handleEditImage={handleEditImage} handleDeleteImage={handleDeleteImage} handleViewAlbum={handleViewAlbum} />
             )}
             {activeSection === 'albums' && (
               <AlbumsSection albums={albums} images={images} onAddPhotosToAlbum={handleOpenAddToAlbum} />
