@@ -118,5 +118,5 @@ export function getImageUrl(path: string) {
   if (path.startsWith('http')) return path;
   // Supprime tous les / initiaux et le préfixe 'public/'
   const cleanPath = path.replace(/^\/+/, '').replace(/^public\//, '');
-  return `https://klvrhlxerqhofvjgkcma.supabase.co/storage/v1/object/public/images/${cleanPath}`;
+  return `https://klvrhlxerqhofvjgkcma.supabase.co/storage/v1/object/public/images/public/${cleanPath}`;
 }
