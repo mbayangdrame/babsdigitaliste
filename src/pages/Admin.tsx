@@ -956,6 +956,9 @@ const Admin: React.FC = () => {
                     ⭐ Vedette
                   </div>
                 )}
+                <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-blue-500 to-[#009EAA] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg border-2 border-white/60">
+                  {img.category_name}
+                </div>
               </div>
               <div className="p-4">
                 <h3 className="font-semibold text-gray-900 mb-2 truncate">{img.title || 'Sans titre'}</h3>
