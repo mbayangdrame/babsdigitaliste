@@ -1307,53 +1307,45 @@ const Admin: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`bg-gradient-to-r ${getCategoryColor(index)} shadow-xl rounded-2xl overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-white`}
+                className={`relative group rounded-3xl overflow-hidden shadow-2xl border-0 bg-white/30 backdrop-blur-xl hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] transition-all duration-300 cursor-pointer`}
+                style={{ minHeight: 260 }}
                 onClick={() => handleCategoryClick(cat.id)}
               >
-                <div className="p-6 flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 bg-white/30 rounded-lg flex items-center justify-center shadow">
-                        <Tag className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white drop-shadow">{cat.name}</h3>
-                        <p className="text-white/80 text-sm">{cat.image_count} photos</p>
-                      </div>
+                {/* Badge nombre d'images */}
+                <span className="absolute top-4 right-4 z-10 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg border-2 border-white/60">
+                  {cat.image_count} images
+                </span>
+                {/* Miniatures récentes en cercle overlap */}
+                <div className="flex items-center space-x-[-18px] px-6 pt-10 pb-4 z-10 relative">
+                  {recentImages.length > 0 ? recentImages.map((img, idx) => (
+                    <div key={idx} className="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden relative z-10 hover:z-20 transition-all duration-200">
+                      <img 
+                        src={getImageUrl(img.thumbnail_url || img.image_url)} 
+                        alt="" 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => { e.currentTarget.src = '/img/herobabs.jpg'; }}
+                      />
                     </div>
-                    <div className="flex flex-col items-end space-y-1">
-                      <span className="bg-white/80 text-[#009EAA] px-3 py-1 rounded-full text-xs font-bold shadow">{cat.image_count} images</span>
-                      <span className="bg-yellow-300/80 text-yellow-900 px-2 py-1 rounded-full text-xs font-semibold shadow">{categoryImages.filter(img => img.is_featured).length} vedettes</span>
-                      <span className="bg-blue-200/80 text-blue-900 px-2 py-1 rounded-full text-xs font-semibold shadow">{new Set(categoryImages.map(img => img.album_name).filter(Boolean)).size} albums</span>
-                    </div>
-                  </div>
-                  {/* Miniatures */}
-                  {recentImages.length > 0 ? (
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {recentImages.map((img, idx) => (
-                        <div key={idx} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow">
-                          <img 
-                            src={getImageUrl(img.thumbnail_url || img.image_url)} 
-                            alt="" 
-                            className="w-full h-full object-cover" 
-                            onError={(e) => { e.currentTarget.src = '/img/herobabs.jpg'; }}
-                          />
-                        </div>
-                      ))}
-                      {categoryImages.length > 3 && (
-                        <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-600 font-semibold border-2 border-white shadow">
-                          +{categoryImages.length - 3}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="h-20 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                      <p className="text-gray-400 text-sm">Aucune image</p>
+                  )) : (
+                    <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center text-gray-400 text-sm">Aucune</div>
+                  )}
+                  {categoryImages.length > 3 && (
+                    <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gradient-to-r from-gray-200 to-gray-400 flex items-center justify-center text-xs text-gray-600 font-bold relative z-10">
+                      +{categoryImages.length - 3}
                     </div>
                   )}
-                  {/* Bouton d'action */}
-                  <button className="w-full mt-auto bg-white/80 text-[#009EAA] py-2 px-4 rounded-lg hover:bg-[#009EAA] hover:text-white transition-colors font-bold text-sm shadow-lg">Voir toutes les images</button>
                 </div>
+                {/* Titre sur fond dégradé en bas */}
+                <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#009EAA]/90 via-[#007E9C]/80 to-transparent">
+                  <h3 className="text-2xl font-extrabold text-white drop-shadow-lg tracking-tight mb-2 glow-text">{cat.name}</h3>
+                  <div className="flex space-x-2 mb-2">
+                    <span className="bg-yellow-300/90 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold shadow">{categoryImages.filter(img => img.is_featured).length} vedettes</span>
+                    <span className="bg-blue-200/90 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold shadow">{new Set(categoryImages.map(img => img.album_name).filter(Boolean)).size} albums</span>
+                  </div>
+                  <button className="mt-2 px-6 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white font-bold rounded-full shadow-lg hover:from-blue-500 hover:to-pink-500 transition-all duration-200 neon-glow">Voir la galerie</button>
+                </div>
+                {/* Effet de lumière/halo au hover */}
+                <div className="absolute inset-0 pointer-events-none group-hover:bg-gradient-to-br group-hover:from-pink-400/20 group-hover:via-purple-400/20 group-hover:to-blue-400/20 transition-all duration-300" />
               </motion.div>
             );
           })}
