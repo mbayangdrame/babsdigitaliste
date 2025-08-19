@@ -904,9 +904,25 @@ const Admin: React.FC = () => {
             >
               <div className="relative">
                 <img 
-                  src={getImageUrl(img.thumbnail_url)} 
+                  src={getImageUrl(img.thumbnail_url || img.image_url)} 
                   alt={img.title} 
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+                  onError={(e) => {
+                    if (!e.currentTarget) return;
+                    if (img.thumbnail_url && img.image_url !== img.thumbnail_url) {
+                      const originalUrl = getImageUrl(img.image_url);
+                      e.currentTarget.src = originalUrl;
+                      e.currentTarget.onerror = () => {
+                        if (e.currentTarget) {
+                          e.currentTarget.src = '/img/herobabs.jpg';
+                          e.currentTarget.onerror = null;
+                        }
+                      };
+                    } else {
+                      e.currentTarget.src = '/img/herobabs.jpg';
+                      e.currentTarget.onerror = null;
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
@@ -1112,42 +1128,26 @@ const Admin: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group hover:shadow-lg transition-all duration-300"
+                className="bg-white rounded-2xl shadow-xl border-2 border-white overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-300"
               >
                 <div className="relative">
                   {coverImage ? (
                     <img 
-                      src={getImageUrl(coverImage.thumbnail_url)} 
+                      src={getImageUrl(coverImage.thumbnail_url || coverImage.image_url)} 
                       alt={album.album_name} 
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 border-b-4 border-[#009EAA]" 
+                      onError={(e) => { e.currentTarget.src = '/img/herobabs.jpg'; }}
                     />
                   ) : (
                     <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <Folder className="h-16 w-16 text-gray-400" />
                     </div>
                   )}
-                  
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <button
-                        onClick={() => onAddPhotosToAlbum(album.album_name)}
-                        className="bg-[#009EAA] text-white px-4 py-2 rounded-lg hover:bg-[#007E9C] transition-colors font-semibold flex items-center space-x-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        <span>Ajouter des photos</span>
-                      </button>
-                    </div>
-                  </div>
-
                   {/* Badge nombre d'images */}
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-gray-900 px-2 py-1 rounded-full text-xs font-semibold">
-                    {album.image_count} photo{album.image_count > 1 ? 's' : ''}
-                  </div>
+                  <div className="absolute top-2 right-2 bg-[#009EAA] text-white px-3 py-1 rounded-full text-xs font-bold shadow">{album.image_count} photo{album.image_count > 1 ? 's' : ''}</div>
                 </div>
-
-              <div className="p-4">
+                <div className="p-4 flex flex-col h-full">
                   <h3 className="font-semibold text-gray-900 mb-2 truncate">{album.album_name}</h3>
-                  
                   {coverImage && (
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
@@ -1161,34 +1161,31 @@ const Admin: React.FC = () => {
                   )}
                 </div>
                   )}
-
-                  <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>Créé le {new Date(album.created_at).toLocaleDateString('fr-FR')}</span>
-                    <div className="flex items-center space-x-1">
-                      <Folder className="h-3 w-3" />
-                      <span>Album</span>
-              </div>
-                  </div>
-
-                  {/* Miniatures des images */}
+                  {/* Miniatures */}
                   {albumImages.length > 0 && (
                     <div className="mt-3 flex space-x-1">
                       {albumImages.slice(0, 4).map((img, idx) => (
-                        <div key={idx} className="w-8 h-8 rounded overflow-hidden">
+                        <div key={idx} className="w-8 h-8 rounded overflow-hidden border-2 border-white shadow">
                           <img 
-                            src={getImageUrl(img.thumbnail_url)} 
+                            src={getImageUrl(img.thumbnail_url || img.image_url)} 
                             alt="" 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover" 
+                            onError={(e) => { e.currentTarget.src = '/img/herobabs.jpg'; }}
                           />
-            </div>
-          ))}
+                        </div>
+                      ))}
                       {albumImages.length > 4 && (
-                        <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-600 font-semibold">
+                        <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-600 font-semibold border-2 border-white shadow">
                           +{albumImages.length - 4}
-        </div>
+                        </div>
                       )}
                     </div>
                   )}
+                  {/* Bouton d'ajout */}
+                  <button className="bg-[#009EAA] text-white px-4 py-2 rounded-lg hover:bg-[#007E9C] transition-colors font-bold flex items-center space-x-2 shadow-lg mt-auto">
+                    <Plus className="h-4 w-4" />
+                    <span>Ajouter des photos</span>
+                  </button>
                 </div>
               </motion.div>
             );
@@ -1310,48 +1307,43 @@ const Admin: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                className={`bg-gradient-to-r ${getCategoryColor(index)} shadow-xl rounded-2xl overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-white`}
                 onClick={() => handleCategoryClick(cat.id)}
               >
-                {/* Header de la catégorie */}
-                <div className={`bg-gradient-to-r ${getCategoryColor(index)} p-6 text-white`}>
-                  <div className="flex items-center justify-between">
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      <div className="h-12 w-12 bg-white/30 rounded-lg flex items-center justify-center shadow">
                         <Tag className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold">{cat.name}</h3>
+                        <h3 className="text-xl font-bold text-white drop-shadow">{cat.name}</h3>
                         <p className="text-white/80 text-sm">{cat.image_count} photos</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{cat.image_count}</div>
-                      <div className="text-xs text-white/80">images</div>
+                    <div className="flex flex-col items-end space-y-1">
+                      <span className="bg-white/80 text-[#009EAA] px-3 py-1 rounded-full text-xs font-bold shadow">{cat.image_count} images</span>
+                      <span className="bg-yellow-300/80 text-yellow-900 px-2 py-1 rounded-full text-xs font-semibold shadow">{categoryImages.filter(img => img.is_featured).length} vedettes</span>
+                      <span className="bg-blue-200/80 text-blue-900 px-2 py-1 rounded-full text-xs font-semibold shadow">{new Set(categoryImages.map(img => img.album_name).filter(Boolean)).size} albums</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Contenu de la catégorie */}
-                <div className="p-6">
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{cat.description}</p>
-                  
-                  {/* Miniatures des images récentes */}
+                  {/* Miniatures */}
                   {recentImages.length > 0 ? (
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {recentImages.map((img, idx) => (
-                        <div key={idx} className="aspect-square rounded-lg overflow-hidden">
+                        <div key={idx} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow">
                           <img 
-                            src={getImageUrl(img.thumbnail_url)} 
+                            src={getImageUrl(img.thumbnail_url || img.image_url)} 
                             alt="" 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover" 
+                            onError={(e) => { e.currentTarget.src = '/img/herobabs.jpg'; }}
                           />
-        </div>
-      ))}
+                        </div>
+                      ))}
                       {categoryImages.length > 3 && (
-                        <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-600 font-semibold">
+                        <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-600 font-semibold border-2 border-white shadow">
                           +{categoryImages.length - 3}
-    </div>
+                        </div>
                       )}
                     </div>
                   ) : (
@@ -1359,36 +1351,8 @@ const Admin: React.FC = () => {
                       <p className="text-gray-400 text-sm">Aucune image</p>
                     </div>
                   )}
-
-                  {/* Statistiques de la catégorie */}
-                  <div className="space-y-2 text-xs text-gray-500">
-                    <div className="flex justify-between">
-                      <span>Images en vedette</span>
-                      <span className="font-semibold text-yellow-600">
-                        {categoryImages.filter(img => img.is_featured).length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Albums créés</span>
-                      <span className="font-semibold text-blue-600">
-                        {new Set(categoryImages.map(img => img.album_name).filter(Boolean)).size}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Dernière activité</span>
-                      <span className="font-semibold text-green-600">
-                        {categoryImages.length > 0 
-                          ? new Date(Math.max(...categoryImages.map(img => new Date(img.created_at).getTime()))).toLocaleDateString('fr-FR')
-                          : 'Aucune'
-                        }
-                      </span>
-                    </div>
-                  </div>
-
                   {/* Bouton d'action */}
-                  <button className="w-full mt-4 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm">
-                    Voir toutes les images
-                  </button>
+                  <button className="w-full mt-auto bg-white/80 text-[#009EAA] py-2 px-4 rounded-lg hover:bg-[#009EAA] hover:text-white transition-colors font-bold text-sm shadow-lg">Voir toutes les images</button>
                 </div>
               </motion.div>
             );
@@ -1438,9 +1402,25 @@ const Admin: React.FC = () => {
                     >
                       <div className="relative">
                         <img
-                          src={getImageUrl(image.thumbnail_url)}
+                          src={getImageUrl(image.thumbnail_url || image.image_url)}
                           alt={image.title}
                           className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            if (!e.currentTarget) return;
+                            if (image.thumbnail_url && image.image_url !== image.thumbnail_url) {
+                              const originalUrl = getImageUrl(image.image_url);
+                              e.currentTarget.src = originalUrl;
+                              e.currentTarget.onerror = () => {
+                                if (e.currentTarget) {
+                                  e.currentTarget.src = '/img/herobabs.jpg';
+                                  e.currentTarget.onerror = null;
+                                }
+                              };
+                            } else {
+                              e.currentTarget.src = '/img/herobabs.jpg';
+                              e.currentTarget.onerror = null;
+                            }
+                          }}
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
                           <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
@@ -1900,9 +1880,25 @@ const Admin: React.FC = () => {
                   >
                     <div className="relative">
                       <img
-                        src={getImageUrl(image.thumbnail_url)}
+                        src={getImageUrl(image.thumbnail_url || image.image_url)}
                         alt={image.title}
                         className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          if (!e.currentTarget) return;
+                          if (image.thumbnail_url && image.image_url !== image.thumbnail_url) {
+                            const originalUrl = getImageUrl(image.image_url);
+                            e.currentTarget.src = originalUrl;
+                            e.currentTarget.onerror = () => {
+                              if (e.currentTarget) {
+                                e.currentTarget.src = '/img/herobabs.jpg';
+                                e.currentTarget.onerror = null;
+                              }
+                            };
+                          } else {
+                            e.currentTarget.src = '/img/herobabs.jpg';
+                            e.currentTarget.onerror = null;
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
