@@ -120,6 +120,8 @@ const Admin: React.FC = () => {
   const [addToAlbumName, setAddToAlbumName] = useState<string | null>(null);
   const [addToAlbumFiles, setAddToAlbumFiles] = useState<FileList | null>(null);
   const [addToAlbumUploading, setAddToAlbumUploading] = useState(false);
+  const [showQuickCategoryModal, setShowQuickCategoryModal] = useState(false);
+  const [quickCategoryImage, setQuickCategoryImage] = useState<Image | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -326,6 +328,7 @@ const Admin: React.FC = () => {
         description: editingImage.description,
         album_name: editingImage.album_name,
         event_date: editingImage.event_date,
+        category_id: editingImage.category_id,
         image_url: imageUrl
       }).eq('id', editingImage.id);
       if (!error) {
@@ -364,6 +367,33 @@ const Admin: React.FC = () => {
   };
 
   // Fonction pour uploader les images dans l'album
+  const handleQuickCategoryChange = (image: Image) => {
+    setQuickCategoryImage(image);
+    setShowQuickCategoryModal(true);
+  };
+
+  const handleQuickCategoryUpdate = async (newCategoryId: number) => {
+    if (!quickCategoryImage) return;
+    
+    try {
+      const { error } = await supabase
+        .from('images')
+        .update({ category_id: newCategoryId })
+        .eq('id', quickCategoryImage.id);
+      
+      if (!error) {
+        toast.success('Catégorie modifiée avec succès');
+        setShowQuickCategoryModal(false);
+        setQuickCategoryImage(null);
+        fetchImages();
+      } else {
+        toast.error('Erreur lors de la modification de la catégorie');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la modification de la catégorie');
+    }
+  };
+
   const handleAddToAlbumUpload = async () => {
     if (!addToAlbumFiles || !addToAlbumName) {
       toast.error('Veuillez sélectionner des images');
@@ -823,7 +853,7 @@ const Admin: React.FC = () => {
   );
 
   // Composant Galerie avec pagination et cartes modernes
-  const GalerieSection = ({ images, categories, handleEditImage, handleDeleteImage, handleViewAlbum }: { images: Image[], categories: Category[], handleEditImage: (img: Image) => void, handleDeleteImage: (id: number) => void, handleViewAlbum: (albumName: string) => void }) => {
+  const GalerieSection = ({ images, categories, handleEditImage, handleDeleteImage, handleViewAlbum, handleQuickCategoryChange }: { images: Image[], categories: Category[], handleEditImage: (img: Image) => void, handleDeleteImage: (id: number) => void, handleViewAlbum: (albumName: string) => void, handleQuickCategoryChange: (img: Image) => void }) => {
     const [page, setPage] = useState(1);
     const [filterCategory, setFilterCategory] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -939,6 +969,13 @@ const Admin: React.FC = () => {
                       title="Supprimer"
                     >
                       <Trash2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleQuickCategoryChange(img)}
+                      className="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 transition-colors"
+                      title="Changer catégorie"
+                    >
+                      <Tag className="h-4 w-4" />
                     </button>
                     {img.album_name && (
                       <button
@@ -1685,7 +1722,7 @@ const Admin: React.FC = () => {
               </DashboardSection>
             )}
             {activeSection === 'galerie' && (
-              <GalerieSection images={images} categories={categories} handleEditImage={handleEditImage} handleDeleteImage={handleDeleteImage} handleViewAlbum={handleViewAlbum} />
+              <GalerieSection images={images} categories={categories} handleEditImage={handleEditImage} handleDeleteImage={handleDeleteImage} handleViewAlbum={handleViewAlbum} handleQuickCategoryChange={handleQuickCategoryChange} />
             )}
             {activeSection === 'albums' && (
               <AlbumsSection albums={albums} images={images} onAddPhotosToAlbum={handleOpenAddToAlbum} />
@@ -1730,6 +1767,12 @@ const Admin: React.FC = () => {
                       alt={editingImage.title}
                       className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover bg-white"
                     />
+                  </div>
+                  {/* Badge catégorie actuelle */}
+                  <div className="mt-2">
+                    <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      {categories.find(cat => cat.id === editingImage.category_id)?.name || 'Catégorie inconnue'}
+                    </span>
                   </div>
                 </div>
                 {/* Bouton fermer */}
@@ -1804,6 +1847,25 @@ const Admin: React.FC = () => {
                       onChange={(e) => setEditingImage({ ...editingImage, event_date: e.target.value })}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white/60 focus:outline-none focus:ring-2 focus:ring-[#009EAA] text-gray-900"
                     />
+                  </div>
+                  {/* Catégorie */}
+                  <div className="relative">
+                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-[#009EAA] w-5 h-5 pointer-events-none" />
+                    <select
+                      value={editingImage.category_id}
+                      onChange={(e) => setEditingImage({ ...editingImage, category_id: parseInt(e.target.value) })}
+                      className="w-full pl-10 pr-8 py-3 border border-gray-300 rounded-xl bg-white/60 focus:outline-none focus:ring-2 focus:ring-[#009EAA] text-gray-900 appearance-none"
+                    >
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    {/* Flèche personnalisée */}
+                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#009EAA] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
                 </div>
 
@@ -2001,6 +2063,80 @@ const Admin: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modale de changement rapide de catégorie */}
+      <AnimatePresence>
+        {showQuickCategoryModal && quickCategoryImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowQuickCategoryModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-md w-full border border-[#009EAA] p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Changer la catégorie</h3>
+                <p className="text-gray-600">Sélectionnez une nouvelle catégorie pour cette image</p>
+              </div>
+
+              {/* Aperçu de l'image */}
+              <div className="mb-6 flex justify-center">
+                <div className="relative">
+                  <img
+                    src={getImageUrl(quickCategoryImage.thumbnail_url || quickCategoryImage.image_url)}
+                    alt={quickCategoryImage.title}
+                    className="w-32 h-32 object-cover rounded-xl border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = '/img/herobabs.jpg';
+                    }}
+                  />
+                  <div className="absolute -top-2 -right-2 bg-[#009EAA] text-white px-2 py-1 rounded-full text-xs font-bold">
+                    {categories.find(cat => cat.id === quickCategoryImage.category_id)?.name || 'Inconnue'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sélecteur de catégorie */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Nouvelle catégorie :</label>
+                <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleQuickCategoryUpdate(category.id)}
+                      className={`p-3 rounded-xl border-2 transition-all duration-200 text-left ${
+                        category.id === quickCategoryImage.category_id
+                          ? 'border-[#009EAA] bg-[#009EAA]/10 text-[#009EAA]'
+                          : 'border-gray-200 bg-white hover:border-[#009EAA] hover:bg-[#009EAA]/5'
+                      }`}
+                    >
+                      <div className="font-semibold text-sm">{category.name}</div>
+                      <div className="text-xs text-gray-500">{category.image_count} images</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Boutons */}
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowQuickCategoryModal(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg bg-white hover:bg-gray-50 transition-colors font-semibold"
+                >
+                  Annuler
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
