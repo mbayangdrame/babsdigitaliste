@@ -137,19 +137,16 @@ const Admin: React.FC = () => {
 
   const verifyToken = async () => {
     try {
-      const response = await fetchWithCORS(`${API_BASE_URL}/auth/verify`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        setIsLoggedIn(true);
-        fetchAllData();
-      } else {
+      // Vérifier la session Supabase
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
         localStorage.removeItem('adminToken');
         setToken(null);
         setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(true);
+        fetchAllData();
       }
     } catch (error) {
       localStorage.removeItem('adminToken');
@@ -218,22 +215,49 @@ const Admin: React.FC = () => {
   };
 
   const fetchImages = async () => {
-    if (selectedCategory !== null && selectedCategory !== undefined) {
-      const imgs = await apiService.getImagesByCategory(selectedCategory);
-      setImages(imgs);
-    } else {
-      if (typeof apiService.getAllImages === 'function') {
-        const imgs = await apiService.getAllImages();
-        setImages(imgs);
+    try {
+      if (selectedCategory !== null && selectedCategory !== undefined) {
+        const { data, error } = await supabase
+          .from('images')
+          .select('*')
+          .eq('category_id', selectedCategory);
+        if (!error && data) {
+          setImages(data);
+        }
       } else {
-        setImages([]);
+        const { data, error } = await supabase
+          .from('images')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!error && data) {
+          setImages(data);
+        } else {
+          console.error('Erreur lors du chargement des images:', error);
+          setImages([]);
+        }
       }
+    } catch (error) {
+      console.error('Erreur lors du chargement des images:', error);
+      setImages([]);
     }
   };
 
   const fetchCategories = async () => {
-    const cats = await apiService.getCategories();
-    setCategories(cats);
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+      if (!error && data) {
+        setCategories(data);
+      } else {
+        console.error('Erreur lors du chargement des catégories:', error);
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des catégories:', error);
+      setCategories([]);
+    }
   };
 
   const fetchAlbums = async () => {
@@ -262,12 +286,15 @@ const Admin: React.FC = () => {
         if (uploadRes.success && uploadRes.url) {
           const { error: insertError } = await supabase.from('images').insert([
             {
-              title: imageTitle,
+              title: imageTitle || file.name,
               description: imageDescription,
               image_url: uploadRes.url,
+              thumbnail_url: uploadRes.url,
               category_id: selectedCategory,
               album_name: imageAlbum,
-              event_date: imageEventDate
+              event_date: imageEventDate,
+              is_featured: false,
+              sort_order: 0
             }
           ]);
           if (insertError) {
@@ -311,36 +338,64 @@ const Admin: React.FC = () => {
   };
 
   const handleUpdateImage = async () => {
-    if (!editingImage) return;
+    if (!editingImage) {
+      console.log('Aucune image en cours d\'édition');
+      return;
+    }
+    
+    console.log('Début de la modification de l\'image:', editingImage);
+    
     try {
       let imageUrl = editingImage.image_url;
+      let thumbnailUrl = editingImage.thumbnail_url;
+      
       if (newImageFile) {
+        console.log('Upload d\'une nouvelle image...');
         const uploadRes = await apiService.uploadImage(newImageFile);
         if (uploadRes.success && uploadRes.url) {
           imageUrl = uploadRes.url;
+          thumbnailUrl = uploadRes.url;
+          console.log('Nouvelle image uploadée:', imageUrl);
         } else {
+          console.error('Erreur upload:', uploadRes.message);
           toast.error(uploadRes.message);
           return;
         }
       }
-      const { error } = await supabase.from('images').update({
+      
+      const updateData = {
         title: editingImage.title,
         description: editingImage.description,
         album_name: editingImage.album_name,
         event_date: editingImage.event_date,
         category_id: editingImage.category_id,
-        image_url: imageUrl
-      }).eq('id', editingImage.id);
+        image_url: imageUrl,
+        thumbnail_url: thumbnailUrl
+      };
+      
+      console.log('Données à mettre à jour:', updateData);
+      console.log('ID de l\'image:', editingImage.id);
+      
+      const { data, error } = await supabase
+        .from('images')
+        .update(updateData)
+        .eq('id', editingImage.id)
+        .select();
+      
       if (!error) {
+        console.log('Image mise à jour avec succès:', data);
         toast.success('Image modifiée avec succès');
         setShowEditModal(false);
         setEditingImage(null);
         setNewImageFile(null);
-        fetchImages();
+        await fetchImages();
+        console.log('Images rechargées');
       } else {
-        toast.error('Erreur lors de la modification');
+        console.error('Erreur Supabase:', error);
+        toast.error('Erreur lors de la modification: ' + error.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Erreur lors de la modification:', error);
       toast.error('Erreur lors de la modification');
     }
   };
@@ -407,12 +462,15 @@ const Admin: React.FC = () => {
         if (uploadRes.success && uploadRes.url) {
           await supabase.from('images').insert([
             {
-              title: '',
+              title: file.name,
               description: '',
               image_url: uploadRes.url,
-              category_id: '', // à adapter si besoin
+              thumbnail_url: uploadRes.url,
+              category_id: 1, // Catégorie par défaut
               album_name: addToAlbumName,
-              event_date: ''
+              event_date: '',
+              is_featured: false,
+              sort_order: 0
             }
           ]);
         } else {
@@ -466,12 +524,15 @@ const Admin: React.FC = () => {
           if (uploadRes.success && uploadRes.url) {
             const { error: insertError } = await supabase.from('images').insert([
               {
-                title: imageTitle,
+                title: imageTitle || file.name,
                 description: imageDescription,
                 image_url: uploadRes.url,
+                thumbnail_url: uploadRes.url,
                 category_id: selectedCategory,
                 album_name: imageAlbum,
-                event_date: imageEventDate
+                event_date: imageEventDate,
+                is_featured: false,
+                sort_order: 0
               }
             ]);
             if (insertError) {
