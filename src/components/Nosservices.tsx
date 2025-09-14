@@ -17,7 +17,12 @@ const Nosservices=() =>{
       };
       
     const handleServiceClick = (category: string) => {
-        navigate(`/portfolio/${category.toLowerCase()}`);
+        if (category === "videos") {
+            // Rediriger vers la page YouTube
+            window.open("https://www.youtube.com/results?search_query=babsdigitaliste", "_blank");
+        } else {
+            navigate(`/portfolio/${category.toLowerCase()}`);
+        }
     };
 
     return (

@@ -64,7 +64,13 @@ const NosPortfolio=({ style }: NosPortfolioProps) =>{
                 title: "Politique",
                 category: "politique"
               }
-            ].map((img, index) => (
+            ].map((img, index) => {
+              // Fonction pour capitaliser la première lettre
+              const capitalizeFirstLetter = (str: string) => {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+              };
+              
+              return (
               <Link to={`/portfolio/${img.category}`} key={index}>
                 <motion.div
                   initial="hidden"
@@ -76,12 +82,13 @@ const NosPortfolio=({ style }: NosPortfolioProps) =>{
                   <img src={img.src} alt={img.title} className="w-full h-full object-cover portfolio9" />
                   <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-start p-8 portfolio9">
                     <h3 className="text-3xl font-bold text-white transform -translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
-                      {img.title}
+                      {capitalizeFirstLetter(img.title)}
                     </h3>
                   </div>
                 </motion.div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>

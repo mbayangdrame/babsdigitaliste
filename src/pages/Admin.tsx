@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
 import { Edit, Trash2, Upload, Eye, Calendar, Folder, Tag, Plus, X, Save, Image as ImageIcon, TrendingUp } from 'lucide-react';
@@ -38,45 +38,7 @@ interface Album {
   category_slug?: string;
 }
 
-interface AlbumDetail {
-  id: number;
-  title: string;
-  description: string;
-  category_name: string;
-  category_slug: string;
-  image_count: number;
-  created_at: string;
-}
 
-// Fonction utilitaire pour les requêtes avec CORS
-const fetchWithCORS = async (url: string, options: RequestInit = {}) => {
-  // Ne pas forcer Content-Type pour FormData (laissera le navigateur le définir automatiquement)
-  const isFormData = options.body instanceof FormData;
-  
-  const defaultHeaders: Record<string, string> = {
-    'Accept': 'application/json',
-    'Origin': window.location.origin
-  };
-
-  // Ajouter Content-Type seulement si ce n'est pas FormData
-  if (!isFormData) {
-    defaultHeaders['Content-Type'] = 'application/json';
-  }
-
-  // Fusionner avec les headers existants
-  const finalHeaders = {
-    ...defaultHeaders,
-    ...options.headers
-  };
-
-  const config: RequestInit = {
-    ...options,
-    headers: finalHeaders,
-    credentials: 'include'
-  };
-
-  return fetch(url, config);
-};
 
 const Admin: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -87,7 +49,6 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [imageTitle, setImageTitle] = useState<string>('');
   const [imageDescription, setImageDescription] = useState<string>('');
   const [imageAlbum, setImageAlbum] = useState<string>('');
@@ -123,51 +84,16 @@ const Admin: React.FC = () => {
   const [showQuickCategoryModal, setShowQuickCategoryModal] = useState(false);
   const [quickCategoryImage, setQuickCategoryImage] = useState<Image | null>(null);
 
-  useEffect(() => {
-    if (token) {
-      verifyToken();
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (images.length > 0 || categories.length > 0) {
-      calculateStats();
-    }
-  }, [images, categories]);
-
-  const verifyToken = async () => {
-    try {
-      const response = await fetchWithCORS(`${API_BASE_URL}/auth/verify`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        setIsLoggedIn(true);
-        fetchAllData();
-      } else {
-        localStorage.removeItem('adminToken');
-        setToken(null);
-        setIsLoggedIn(false);
-      }
-    } catch (error) {
-      localStorage.removeItem('adminToken');
-      setToken(null);
-      setIsLoggedIn(false);
-    }
-  };
-
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     await Promise.all([
       fetchImages(),
       fetchCategories(),
       fetchAlbums()
     ]);
     calculateStats();
-  };
+  }, [calculateStats]);
 
-  const calculateStats = () => {
+  const calculateStats = useCallback(() => {
     const totalImages = images.length;
     const totalAlbums = new Set(images.map(img => img.album_name).filter(Boolean)).size;
     const totalCategories = categories.length;
@@ -186,13 +112,45 @@ const Admin: React.FC = () => {
       featuredImages,
       recentUploads
     });
-  };
+  }, [images, categories]);
+
+  const verifyToken = useCallback(async () => {
+    try {
+      // Vérifier la session Supabase
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        localStorage.removeItem('adminToken');
+        setToken(null);
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(true);
+        fetchAllData();
+      }
+    } catch (error) {
+      localStorage.removeItem('adminToken');
+      setToken(null);
+      setIsLoggedIn(false);
+    }
+  }, [fetchAllData]);
+
+  useEffect(() => {
+    if (token) {
+      verifyToken();
+    }
+  }, [token, verifyToken]);
+
+  useEffect(() => {
+    if (images.length > 0 || categories.length > 0) {
+      calculateStats();
+    }
+  }, [images, categories, calculateStats]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: loginForm.username,
         password: loginForm.password
       });
@@ -241,10 +199,6 @@ const Admin: React.FC = () => {
     if (!error && data) setAlbums(data);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFiles(e.target.files);
-  };
-
   const handleBulkUpload = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
       toast.error('Veuillez sélectionner des images');
@@ -254,7 +208,7 @@ const Admin: React.FC = () => {
       toast.error('Veuillez sélectionner une catégorie');
       return;
     }
-    setUploading(true);
+    setLoading(true);
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
@@ -290,7 +244,7 @@ const Admin: React.FC = () => {
     } catch {
       toast.error("Erreur lors de l'upload");
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
   const handleDeleteImage = async (imageId: number) => {
@@ -314,23 +268,31 @@ const Admin: React.FC = () => {
     if (!editingImage) return;
     try {
       let imageUrl = editingImage.image_url;
+      let thumbnailUrl = editingImage.thumbnail_url;
+      
       if (newImageFile) {
         const uploadRes = await apiService.uploadImage(newImageFile);
         if (uploadRes.success && uploadRes.url) {
           imageUrl = uploadRes.url;
+          // Pour l'instant, on utilise la même URL pour la thumbnail
+          // Dans un vrai projet, vous devriez générer une thumbnail
+          thumbnailUrl = uploadRes.url;
         } else {
           toast.error(uploadRes.message);
           return;
         }
       }
+      
       const { error } = await supabase.from('images').update({
         title: editingImage.title,
         description: editingImage.description,
         album_name: editingImage.album_name,
         event_date: editingImage.event_date,
         category_id: editingImage.category_id,
-        image_url: imageUrl
+        image_url: imageUrl,
+        thumbnail_url: thumbnailUrl
       }).eq('id', editingImage.id);
+      
       if (!error) {
         toast.success('Image modifiée avec succès');
         setShowEditModal(false);
@@ -338,9 +300,11 @@ const Admin: React.FC = () => {
         setNewImageFile(null);
         fetchImages();
       } else {
-        toast.error('Erreur lors de la modification');
+        console.error('Erreur Supabase:', error);
+        toast.error('Erreur lors de la modification: ' + error.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Erreur lors de la modification:', error);
       toast.error('Erreur lors de la modification');
     }
   };
@@ -401,30 +365,51 @@ const Admin: React.FC = () => {
     }
     setAddToAlbumUploading(true);
     try {
+      let successCount = 0;
+      let errorCount = 0;
+      
       for (let i = 0; i < addToAlbumFiles.length; i++) {
         const file = addToAlbumFiles[i];
         const uploadRes = await apiService.uploadImage(file);
         if (uploadRes.success && uploadRes.url) {
-          await supabase.from('images').insert([
+          const { error: insertError } = await supabase.from('images').insert([
             {
-              title: '',
+              title: file.name,
               description: '',
               image_url: uploadRes.url,
-              category_id: '', // à adapter si besoin
+              thumbnail_url: uploadRes.url,
+              category_id: 1, // Catégorie par défaut, à adapter selon vos besoins
               album_name: addToAlbumName,
-              event_date: ''
+              event_date: '',
+              is_featured: false,
+              sort_order: 0
             }
           ]);
+          if (insertError) {
+            console.error("Erreur insertion:", insertError);
+            errorCount++;
+          } else {
+            successCount++;
+          }
         } else {
-          toast.error(uploadRes.message);
+          console.error("Erreur upload:", uploadRes.message);
+          errorCount++;
         }
       }
-      toast.success('Images ajoutées à l\'album !');
-      fetchImages();
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} image(s) ajoutée(s) à l'album !`);
+        fetchImages();
+      }
+      if (errorCount > 0) {
+        toast.error(`${errorCount} image(s) n'ont pas pu être ajoutée(s)`);
+      }
+      
       setShowAddToAlbumModal(false);
       setAddToAlbumFiles(null);
       setAddToAlbumName(null);
-    } catch {
+    } catch (error) {
+      console.error("Erreur lors de l'upload:", error);
       toast.error('Erreur lors de l\'upload');
     } finally {
       setAddToAlbumUploading(false);
@@ -434,9 +419,8 @@ const Admin: React.FC = () => {
   // Nouveau composant pour le formulaire d'upload d'images avec état local
   const ImageUploadForm: React.FC<{
     categories: Category[];
-    token: string | null;
     fetchImages: () => void;
-  }> = ({ categories, token, fetchImages }) => {
+  }> = ({ categories, fetchImages }) => {
     const [imageTitle, setImageTitle] = useState('');
     const [imageAlbum, setImageAlbum] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -460,29 +444,47 @@ const Admin: React.FC = () => {
       }
       setUploading(true);
       try {
+        let successCount = 0;
+        let errorCount = 0;
+        
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           const uploadRes = await apiService.uploadImage(file);
           if (uploadRes.success && uploadRes.url) {
             const { error: insertError } = await supabase.from('images').insert([
               {
-                title: imageTitle,
+                title: imageTitle || file.name,
                 description: imageDescription,
                 image_url: uploadRes.url,
+                thumbnail_url: uploadRes.url, // Utiliser la même URL pour la thumbnail
                 category_id: selectedCategory,
                 album_name: imageAlbum,
-                event_date: imageEventDate
+                event_date: imageEventDate,
+                is_featured: false,
+                sort_order: 0
               }
             ]);
             if (insertError) {
-              toast.error("Erreur lors de l'insertion dans la base");
+              console.error("Erreur insertion:", insertError);
+              errorCount++;
+            } else {
+              successCount++;
             }
           } else {
-            toast.error(uploadRes.message);
+            console.error("Erreur upload:", uploadRes.message);
+            errorCount++;
           }
         }
-        toast.success('Upload réussi !');
-        fetchImages();
+        
+        if (successCount > 0) {
+          toast.success(`${successCount} image(s) uploadée(s) avec succès !`);
+          fetchImages();
+        }
+        if (errorCount > 0) {
+          toast.error(`${errorCount} image(s) n'ont pas pu être uploadée(s)`);
+        }
+        
+        // Réinitialiser le formulaire
         setSelectedFiles(null);
         setSelectedCategory(null);
         setImageTitle('');
@@ -491,7 +493,8 @@ const Admin: React.FC = () => {
         setImageEventDate('');
         const fileInput = document.getElementById('fileInput') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
-      } catch {
+      } catch (error) {
+        console.error("Erreur lors de l'upload:", error);
         toast.error("Erreur lors de l'upload");
       } finally {
         setUploading(false);
@@ -1222,7 +1225,10 @@ const Admin: React.FC = () => {
                     </div>
                   )}
                   {/* Bouton d'ajout */}
-                  <button className="bg-[#009EAA] text-white px-4 py-2 rounded-lg hover:bg-[#007E9C] transition-colors font-bold flex items-center space-x-2 shadow-lg mt-auto">
+                  <button 
+                    onClick={() => onAddPhotosToAlbum(album.album_name)}
+                    className="bg-[#009EAA] text-white px-4 py-2 rounded-lg hover:bg-[#007E9C] transition-colors font-bold flex items-center space-x-2 shadow-lg mt-auto"
+                  >
                     <Plus className="h-4 w-4" />
                     <span>Ajouter des photos</span>
                   </button>
@@ -1300,18 +1306,6 @@ const Admin: React.FC = () => {
       setSelectedCategory(categoryId);
     };
 
-    const getCategoryColor = (index: number) => {
-      const colors = [
-        'from-blue-500 to-blue-600',
-        'from-green-500 to-green-600',
-        'from-purple-500 to-purple-600',
-        'from-orange-500 to-orange-600',
-        'from-pink-500 to-pink-600',
-        'from-indigo-500 to-indigo-600',
-        'from-teal-500 to-teal-600'
-      ];
-      return colors[index % colors.length];
-    };
 
     return (
       <div>
@@ -1716,7 +1710,6 @@ const Admin: React.FC = () => {
               <DashboardSection stats={stats}>
                 <ImageUploadForm
                   categories={categories}
-                  token={token}
                   fetchImages={fetchImages}
                 />
               </DashboardSection>
