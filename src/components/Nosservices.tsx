@@ -45,7 +45,7 @@ const Nosservices=() =>{
           <div className="grid md:grid-cols-4 gap-8">
             {[
               {
-                image: "/img/fleurbabs2.jpg",
+                image: "/img/stawa.jpg",
                 title: "Photos",
                 desc: "Séances photos pour capturer vos moments ",
                 category: "shooting"
@@ -58,7 +58,7 @@ const Nosservices=() =>{
               },
               {
                 image: "/img/evenemennts.jpg",
-                title: "Evennement",
+                title: "Evenement",
                 desc: "Couverture complète de vos évènements spéciaux",
                 category: "evenement"
               },
